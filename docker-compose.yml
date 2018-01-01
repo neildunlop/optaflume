@@ -1,0 +1,34 @@
+version: "3"
+services:
+  flume:
+    build: flume
+    ports:
+      - "44444:4444"
+    links:
+      - middle
+
+  middle:
+    image: spotify/kafka
+    #hostname: kafka
+    environment:
+      #ADVERTISED_HOST: 127.0.0.1
+      ADVERTISED_HOST: middle
+      ADVERTISED_PORT: 9092
+    ports:
+      - "9092:9092"
+      - "2181:2181"
+    expose:
+      - "9092"
+      - "2181"
+
+  manager:
+    image: sheepkiller/kafka-manager
+    ports:
+      - "9000:9000"
+    environment:
+      ZK_HOSTS: middle:2181
+      APPLICATION_SECRET: letmein
+    links:
+      - middle
+    depends_on:
+      - middle
